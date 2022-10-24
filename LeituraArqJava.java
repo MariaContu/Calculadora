@@ -1,4 +1,3 @@
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -15,16 +14,26 @@ public class LeituraArqJava {
 
     public static void main(String[] args) {
         BufferedReader reader;
-         Path path1 = Paths.get("expressoes2.txt");
+        Calculadora calc = new Calculadora();
+        Path path1 = Paths.get("expressoes2.txt");
         try {
-           reader = Files.newBufferedReader(path1, Charset.defaultCharset());
+            reader = Files.newBufferedReader(path1, Charset.defaultCharset());
             String line = null;
             while( (line = reader.readLine()) != null) {
+                calc = new Calculadora(line);
                 System.out.println("--- Inicio expressao");
+                System.out.println("Expressao: "+ calc.getExpressao());
+                //VERIFICA VALIDADE;
+               // System.out.println(calc.isValida());
+
+                //SE EXPRESSAO FOR VALIDA
+                calc.replaceAll();
+
                 String v[] = line.split(" "); // divide a string pelo espaco em branco
                 for(String s : v) {
-                    System.out.println(s);   
-                }    
+//APLICAR CALCULADORA
+
+                }
                 System.out.println("--- Fim expressao");
             }
             reader.close();
