@@ -1,13 +1,16 @@
 public class Calculadora {
     private String expressao;
-    private LinkedStack pilha = new LinkedStack();
-    private LinkedStack valida = new LinkedStack();
-    private int op1, op2;
+    private LinkedStack pilha;
+    private LinkedStack pilhaAux;
+
+    private double op1, op2;
     private char operacao;
 
-    public Calculadora(){}
+
     public Calculadora(String expressao) {
         this.expressao = expressao;
+        pilha = new LinkedStack();
+        pilhaAux = new LinkedStack();
 
     }
     public String getExpressao() {
@@ -45,56 +48,35 @@ public class Calculadora {
             return true;
     }
 
-    // ANALIZAR ISVALIDA!!!!!!!!!!!!!!!!!!!!!! SE QUISER USAR PILHA!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//    public boolean isValida() {
-//        for (int i = 0; i < expressao.length(); i++) {
-//            if (expressao.charAt(i) == '{' || expressao.charAt(i) == '[' || expressao.charAt(i) == '(') {
-//                valida.push(expressao.charAt(i));
-//            }
-//            if (expressao.charAt(i) == '}') {
-//                if (valida.top() == '{') {
-//                    valida.pop();
-//                }
-//            }
-//            if (expressao.charAt(i) == ']') {
-//                if (valida.top() == '[') {
-//                    valida.pop();
-//                }
-//            }
-//            if (expressao.charAt(i) == ')') {
-//                if (valida.top() == '(') {
-//                    valida.pop();
-//                }
-//            }
-//        }
-//            return valida.isEmpty();
-//    }
-
-    public void setOp1(int op1) {
-        this.op1 = op1;
-    }
-
-    public void setOp2(int op2) {
-        this.op2 = op2;
-    }
-
     public void setOperacao(char operacao) {
         switch (operacao)   {
             case '+':
                 this.operacao='+';
+                break;
             case '-':
                 this.operacao='-';
+                break;
             case '*':
                 this.operacao='*';
+                break;
             case '/':
                 this.operacao='/';
+                break;
             case '^':
                 this.operacao='^';
+                break;
         }
 
     }
+    public void setOperador1(double valor1) {
+        this.op1 = valor1;
+    }
 
-    public double calcula(String expressao) {
+    public void setOperador2(double valor2) {
+        this.op2 = valor2;
+    }
+
+    public double calcula() {
 
         switch (operacao) {
             case '+':
@@ -115,4 +97,41 @@ public class Calculadora {
         this.expressao=expressao.replace('{','(').replace('[','(').replace('}',')').replace(']',')');
     }
 
+
+
+    public void fazTudo () {
+        String[] termos = expressao.split(" ");
+        for(String proximoTermo : termos) {
+            if(proximoTermo.equals(")")) {
+                try {
+                    while(!pilha.top().equals("("))
+                        pilhaAux.push(pilha.pop());
+
+                    //elimina o "abre parenteses" excedente
+                    pilha.pop();
+
+                    if (pilhaAux.size()<=2) {
+                        throw new MissingNumberException(pilhaAux.toString());
+                    }
+                    while(pilhaAux.size() > 2) {
+                        setOperador1(Double.parseDouble(pilhaAux.pop()));
+                        setOperacao(pilhaAux.pop().charAt(0));
+                        setOperador2(Double.parseDouble(pilhaAux.pop()));
+                        pilhaAux.push(String.format("%f", calcula()).replace(',','.'));
+                    }
+
+                    pilha.push(pilhaAux.pop());
+                }
+                catch (Exception e) {
+                    System.out.println(e.getMessage());
+                    break;
+                }
+
+            }
+            else
+                pilha.push(proximoTermo);
+        }
+        System.out.println(pilha);
+
+    }
 }

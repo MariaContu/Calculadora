@@ -1,62 +1,82 @@
-import java.util.EmptyStackException;
+
+
+import java.util.ArrayList;
 
 public class LinkedStack {
-    // Atributos
-     private int count;
-     private Node top;
-     private int countMax;
 
-    // construtor
+    public class Node {
+        private String element;
+        private Node next = null;
+        Node(String element) {this.element = element;}
+    }
+        private Node head;
+    private int count = 0;
+    private int countMax = 0;
 
     public LinkedStack() {
-        count=0;
-        top=null;
-        countMax=0;
+        head = null;
     }
 
-
-    // insere o elemento e no topo da pilha
-    public void push(int element)   {
-        Node elem = new Node(element);
+    public void push(String element) {
+        Node n = new Node(element);
+        n.next = head;
+        head = n;
         count++;
-        if (count>countMax)countMax=count;
-        top=elem;
+
+        atualizaTamanhoMaximoAtingido();
     }
 
-    // remove e retorna o elemento do topo da pilha
-    // (erro se a pilha estiver vazia)
-    public int pop() throws EmptyStackException {
-        if (isEmpty()){
-            throw new EmptyStackException();
-        }
-        int element = top.getElement();
-        top = top.getNext();
-        count--;
-        return element;
-    }
-
-    // retorna, mas não remove, o elemento do topo da
-    // pilha (erro se a pilha estiver vazia)
-    public int top()    {
-        if (isEmpty())  {
-            throw new EmptyStackException();
-        }
-        return top.getElement();
-    }
-
-    // retorna o número de elementos da pilha
-    public int getCount()   {
-        return count;
-    }
-
-    // retorna true se a pilha estiver vazia, e ]
-    // false caso contrário
-    public boolean isEmpty()    {
-        return count == 0;
+    public int atualizaTamanhoMaximoAtingido() {
+        if(count > countMax)
+            countMax = count;
+        return countMax;
     }
 
     public int getCountMax() {
         return countMax;
     }
-}
 
+    public int size() {
+        return count;
+    }
+
+    public String pop() {
+//        if (head==null) throw new EmptyStackException();
+        Node aux = head;
+        head = head.next;
+        count--;
+        return aux.element;
+    }
+
+    public String top() {
+        return head.element;
+    }
+
+    public boolean isEmpty() {
+        if (count == 0)
+            return true;
+        else
+            return false;
+    }
+
+    public void clear() {
+        head = null;
+        count=0;
+    }
+
+    public String toString() {
+        StringBuilder saida = new StringBuilder();
+        LinkedStack reverseQueue = new LinkedStack();
+
+        Node aux = head;
+        while (aux != null) {
+            reverseQueue.push(aux.element);
+            aux = aux.next;
+        }
+
+        while (reverseQueue.count > 0)
+            saida.append(reverseQueue.pop());
+
+        return saida.toString();
+    }
+}
