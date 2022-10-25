@@ -4,17 +4,39 @@ public class Calculadora {
     private LinkedStack pilhaAux;
 
     private double op1, op2;
-    private char operacao;
+    private char sinal;
 
 
     public Calculadora(String expressao) {
         this.expressao = expressao;
         pilha = new LinkedStack();
         pilhaAux = new LinkedStack();
+        imprime();
 
     }
-    public String getExpressao() {
-        return expressao;
+    public void imprime() {
+        System.out.println("--- Inicio expressao");
+        System.out.println("Expressao: "+ expressao);
+        try {
+            //VERIFICA VALIDADE;
+            isValida();
+
+            //SE EXPRESSAO FOR VALIDA
+            replaceAll();
+            //transforma tudo em ()
+            fazCalculo();
+            System.out.println("Resultado: "+pilha);
+            System.out.println("Tamanho maximo da pilha: "+pilha.getCountMax());
+
+        } catch (RuntimeException e) {
+
+        }
+        System.out.println("--- Fim expressao");
+        System.out.println();
+    }
+
+    public String getResult() {
+        return pilha.toString();
     }
 
     public boolean isValida() {
@@ -26,16 +48,23 @@ public class Calculadora {
             char c = expressao.charAt(i);
             if (c == '{') {
                 cChaves++;
-            }if (c == '}') {
+            }
+            if (c == '}') {
                 cChaves--;
-            }if (c == '(') {
+                if (cParen>0) throw new ExpressaoErradaException('}');
+            }
+            if (c == '(') {
                 cParen++;
-            }if (c == ')') {
+            }
+            if (c == ')') {
                 cParen--;
-            }if (c == '[') {
+            }
+            if (c == '[') {
                 cColc++;
-            }if (c == ']') {
+            }
+            if (c == ']') {
                 cColc--;
+                if (cParen>0) throw new ExpressaoErradaException(']');
             }
 
         }
@@ -48,49 +77,49 @@ public class Calculadora {
             return true;
     }
 
-    public void setOperacao(char operacao) {
-        switch (operacao)   {
+    public void setSinal(char sinal) {
+        switch (sinal)   {
             case '+':
-                this.operacao='+';
+                this.sinal ='+';
                 break;
             case '-':
-                this.operacao='-';
+                this.sinal ='-';
                 break;
             case '*':
-                this.operacao='*';
+                this.sinal ='*';
                 break;
             case '/':
-                this.operacao='/';
+                this.sinal ='/';
                 break;
             case '^':
-                this.operacao='^';
+                this.sinal ='^';
                 break;
         }
 
     }
-    public void setOperador1(double valor1) {
+    public void setOp1(double valor1) {
         this.op1 = valor1;
     }
 
-    public void setOperador2(double valor2) {
+    public void setOp2(double valor2) {
         this.op2 = valor2;
     }
 
-    public double calcula() {
+    public String operacoes() {
 
-        switch (operacao) {
+        switch (sinal) {
             case '+':
-                return op1 + op2;
+                return String.valueOf(op1 + op2);
             case '-':
-                return op1 - op2;
+                return String.valueOf(op1 - op2);
             case '*':
-                return op1 * op2;
+                return String.valueOf(op1 * op2);
             case '/':
-                return op1 / op2;
+                return String.valueOf(op1 / op2);
             case '^':
-                return Math.pow(op1, op2);
+                return String.valueOf(Math.pow(op1, op2));
         }
-        return 0;
+        return null;
     }
 
     public void replaceAll()    {
@@ -99,10 +128,10 @@ public class Calculadora {
 
 
 
-    public void fazTudo () {
+    public void fazCalculo() {
         String[] termos = expressao.split(" ");
-        for(String proximoTermo : termos) {
-            if(proximoTermo.equals(")")) {
+        for(String s : termos) {
+            if(s.equals(")")) {
                 try {
                     while(!pilha.top().equals("("))
                         pilhaAux.push(pilha.pop());
@@ -110,14 +139,16 @@ public class Calculadora {
                     //elimina o "abre parenteses" excedente
                     pilha.pop();
 
-                    if (pilhaAux.size()<=2) {
+                    if(pilhaAux.size()<=2) {
+                        pilha.clear();
                         throw new MissingNumberException(pilhaAux.toString());
+
                     }
                     while(pilhaAux.size() > 2) {
-                        setOperador1(Double.parseDouble(pilhaAux.pop()));
-                        setOperacao(pilhaAux.pop().charAt(0));
-                        setOperador2(Double.parseDouble(pilhaAux.pop()));
-                        pilhaAux.push(String.format("%f", calcula()).replace(',','.'));
+                        setOp1(Double.parseDouble(pilhaAux.pop()));
+                        setSinal(pilhaAux.pop().charAt(0));
+                        setOp2(Double.parseDouble(pilhaAux.pop()));
+                        pilhaAux.push(operacoes());
                     }
 
                     pilha.push(pilhaAux.pop());
@@ -129,9 +160,8 @@ public class Calculadora {
 
             }
             else
-                pilha.push(proximoTermo);
+                pilha.push(s);
         }
-        System.out.println(pilha);
 
     }
 }

@@ -4,8 +4,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.InputMismatchException;
-import java.util.Stack;
 
 /**
  *
@@ -23,24 +21,8 @@ public class LeituraArqJava {
             String line = null;
             while( (line = reader.readLine()) != null) {
                 calc = new Calculadora(line);
-                System.out.println("--- Inicio expressao");
-                System.out.println("Expressao: "+ calc.getExpressao());
-                try {
-                    //VERIFICA VALIDADE;
-                    calc.isValida();
-
-                    //SE EXPRESSAO FOR VALIDA
-                    calc.replaceAll();
-                    //transforma tudo em ()
-                    calc.fazTudo();
 
 
-                    //APLICAR CALCULADORA
-
-                } catch (RuntimeException e) {
-
-                }
-                System.out.println("--- Fim expressao");
             }
             reader.close();
         } catch (IOException e) {
