@@ -21,8 +21,6 @@ public class LeituraArqJava {
             String line = null;
             while( (line = reader.readLine()) != null) {
                 calc = new Calculadora(line);
-
-
             }
             reader.close();
         } catch (IOException e) {

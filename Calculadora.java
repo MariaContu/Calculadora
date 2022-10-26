@@ -3,17 +3,22 @@ public class Calculadora {
     private LinkedStack pilha;
     private LinkedStack pilhaAux;
 
-    private double op1, op2;
+    private double primeiroValor, segundoValor;
     private char sinal;
 
 
+    /*construtor que inicia pilha e pilha auxiliar, além de já imprimir a validade da
+    * expressao e, caso seja valida, seu resultado e o tamanho maximo atingido pela pilha
+    * sao retornados. Caso seja invalida, retornara um erro indicando o caracter erroneo
+    */
     public Calculadora(String expressao) {
         this.expressao = expressao;
         pilha = new LinkedStack();
         pilhaAux = new LinkedStack();
         imprime();
-
     }
+
+    //imprime a expressao, caso valida o resultado e tamanho maximo da pilha, do contrario o erro apresentado
     public void imprime() {
         System.out.println("--- Inicio expressao");
         System.out.println("Expressao: "+ expressao);
@@ -22,23 +27,22 @@ public class Calculadora {
             isValida();
 
             //SE EXPRESSAO FOR VALIDA
-            replaceAll();
             //transforma tudo em ()
+            replaceAll();
+            //apos alterar os caracteres faz os calculos a cada 2 valores.
             fazCalculo();
-            System.out.println("Resultado: "+pilha);
-            System.out.println("Tamanho maximo da pilha: "+pilha.getCountMax());
-
+            //if implementado para evitar impressao em casos de expressao incompleta
+            if (pilhaAux.size()<2) {
+                System.out.println("Resultado: "+pilha);
+                System.out.println("Tamanho maximo da pilha: "+pilha.getCountMax());
+            }
         } catch (RuntimeException e) {
-
         }
         System.out.println("--- Fim expressao");
         System.out.println();
     }
 
-    public String getResult() {
-        return pilha.toString();
-    }
-
+//verifica se todos { [ ( abertos foram fechados corretamente
     public boolean isValida() {
         int cChaves = 0;
         int cColc = 0;
@@ -77,87 +81,74 @@ public class Calculadora {
             return true;
     }
 
+    //altera sinal de cada operacao realizada na expressao
     public void setSinal(char sinal) {
-        switch (sinal)   {
-            case '+':
-                this.sinal ='+';
-                break;
-            case '-':
-                this.sinal ='-';
-                break;
-            case '*':
-                this.sinal ='*';
-                break;
-            case '/':
-                this.sinal ='/';
-                break;
-            case '^':
-                this.sinal ='^';
-                break;
-        }
-
-    }
-    public void setOp1(double valor1) {
-        this.op1 = valor1;
+        this.sinal=sinal;
     }
 
-    public void setOp2(double valor2) {
-        this.op2 = valor2;
+    //altera o primeiro valor
+    public void setPrimeiroValor(double valor1) {
+        this.primeiroValor = valor1;
     }
 
+    //altera o segundo valor
+    public void setSegundoValor(double valor2) {
+        this.segundoValor = valor2;
+    }
+
+    //retorna em String o resultado de cada suboperacao da expressao
     public String operacoes() {
-
         switch (sinal) {
             case '+':
-                return String.valueOf(op1 + op2);
+                return String.valueOf(primeiroValor + segundoValor);
             case '-':
-                return String.valueOf(op1 - op2);
+                return String.valueOf(primeiroValor - segundoValor);
             case '*':
-                return String.valueOf(op1 * op2);
+                return String.valueOf(primeiroValor * segundoValor);
             case '/':
-                return String.valueOf(op1 / op2);
+                return String.valueOf(primeiroValor / segundoValor);
             case '^':
-                return String.valueOf(Math.pow(op1, op2));
+                return String.valueOf(Math.pow(primeiroValor, segundoValor));
         }
         return null;
     }
 
+    //caso a expressao seja dada como valida, substituira todos os '{', '}', '[' e ']' por '(' ou ')';
     public void replaceAll()    {
         this.expressao=expressao.replace('{','(').replace('[','(').replace('}',')').replace(']',')');
     }
 
 
-
+//realiza o calculo completo da expressao
     public void fazCalculo() {
+        //algoritmo inicial fornecido pela professora
         String[] termos = expressao.split(" ");
         for(String s : termos) {
             if(s.equals(")")) {
                 try {
                     while(!pilha.top().equals("("))
                         pilhaAux.push(pilha.pop());
-
-                    //elimina o "abre parenteses" excedente
+                    //elimina o parenteses
                     pilha.pop();
 
+                    //excessao de valor faltando
                     if(pilhaAux.size()<=2) {
                         pilha.clear();
                         throw new MissingNumberException(pilhaAux.toString());
-
                     }
+
                     while(pilhaAux.size() > 2) {
-                        setOp1(Double.parseDouble(pilhaAux.pop()));
+                        setPrimeiroValor(Double.parseDouble(pilhaAux.pop()));
                         setSinal(pilhaAux.pop().charAt(0));
-                        setOp2(Double.parseDouble(pilhaAux.pop()));
+                        setSegundoValor(Double.parseDouble(pilhaAux.pop()));
                         pilhaAux.push(operacoes());
                     }
-
                     pilha.push(pilhaAux.pop());
                 }
                 catch (Exception e) {
                     System.out.println(e.getMessage());
                     break;
                 }
-
             }
             else
                 pilha.push(s);
