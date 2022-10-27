@@ -1,7 +1,7 @@
 public class Calculadora {
     private String expressao;
     private LinkedStack pilha;
-    private LinkedStack pilhaAux;
+    private LinkedStack pilhaContas;
 
     private double primeiroValor, segundoValor;
     private char sinal;
@@ -14,8 +14,8 @@ public class Calculadora {
     public Calculadora(String expressao) {
         this.expressao = expressao;
         pilha = new LinkedStack();
-        pilhaAux = new LinkedStack();
-        imprime();
+        pilhaContas = new LinkedStack();
+
     }
 
     //imprime a expressao, caso valida o resultado e tamanho maximo da pilha, do contrario o erro apresentado
@@ -32,7 +32,7 @@ public class Calculadora {
             //apos alterar os caracteres faz os calculos a cada 2 valores.
             fazCalculo();
             //if implementado para evitar impressao em casos de expressao incompleta
-            if (pilhaAux.size()<2) {
+            if (pilhaContas.size()<2) {
                 System.out.println("Resultado: "+pilha);
                 System.out.println("Tamanho maximo da pilha: "+pilha.getCountMax());
             }
@@ -87,13 +87,13 @@ public class Calculadora {
     }
 
     //altera o primeiro valor
-    public void setPrimeiroValor(double valor1) {
+    public void setValorEsquerda(double valor1) {
         this.primeiroValor = valor1;
     }
 
     //altera o segundo valor
-    public void setSegundoValor(double valor2) {
-        this.segundoValor = valor2;
+    public void setValorDireita(double valorDireita) {
+        this.segundoValor = valorDireita;
     }
 
     //retorna em String o resultado de cada suboperacao da expressao
@@ -122,36 +122,40 @@ public class Calculadora {
 //realiza o calculo completo da expressao
     public void fazCalculo() {
         //algoritmo inicial fornecido pela professora
-        String[] termos = expressao.split(" ");
-        for(String s : termos) {
-            if(s.equals(")")) {
-                try {
+        String[] expressaoDividida = expressao.split(" ");
+            for(String s : expressaoDividida) {
+                if (!s.equals(")")) {
+                    pilha.push(s);
+                }
+                else {
+
+                    //enquanto a expressão não for fechada por parenteses
                     while(!pilha.top().equals("("))
-                        pilhaAux.push(pilha.pop());
-                    //elimina o parenteses
+                        pilhaContas.push(pilha.pop());
+
+                    //elimina o parenteses que abre a conta
                     pilha.pop();
 
                     //excessao de valor faltando
-                    if(pilhaAux.size()<=2) {
+                    if(pilhaContas.size()<=2) {
                         pilha.clear();
-                        throw new MissingNumberException(pilhaAux.toString());
+                        throw new MissingNumberException(pilhaContas.toString());
                     }
 
-                    while(pilhaAux.size() > 2) {
-                        setPrimeiroValor(Double.parseDouble(pilhaAux.pop()));
-                        setSinal(pilhaAux.pop().charAt(0));
-                        setSegundoValor(Double.parseDouble(pilhaAux.pop()));
-                        pilhaAux.push(operacoes());
+                    //enquanto a pilha de contas tiver ao menos 3 elementos, faz a conta
+                    while(pilhaContas.size() > 2) {
+                        setValorEsquerda(Double.parseDouble(pilhaContas.pop()));
+                        setSinal(pilhaContas.pop().charAt(0));
+                        setValorDireita(Double.parseDouble(pilhaContas.pop()));
+                        pilhaContas.push(operacoes());
                     }
-                    pilha.push(pilhaAux.pop());
-                }
-                catch (Exception e) {
-                    System.out.println(e.getMessage());
-                    break;
-                }
+
+                    //insere resultado na pilha original
+                    pilha.push(pilhaContas.pop());
+
+
             }
-            else
-                pilha.push(s);
+
         }
 
     }

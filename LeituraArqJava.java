@@ -13,14 +13,14 @@ public class LeituraArqJava {
 
     public static void main(String[] args) {
         BufferedReader reader;
-        Calculadora calc;
 
         Path path1 = Paths.get("expressoes2.txt");
         try {
             reader = Files.newBufferedReader(path1, Charset.defaultCharset());
             String line = null;
             while( (line = reader.readLine()) != null) {
-                calc = new Calculadora(line);
+                Calculadora calc = new Calculadora(line);
+                calc.imprime();
             }
             reader.close();
         } catch (IOException e) {
