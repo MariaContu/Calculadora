@@ -43,6 +43,7 @@ public class Calculadora {
     }
 
 //verifica se todos { [ ( abertos foram fechados corretamente
+
     public boolean isValida() {
         int cChaves = 0;
         int cColc = 0;
@@ -98,19 +99,14 @@ public class Calculadora {
 
     //retorna em String o resultado de cada suboperacao da expressao
     public String operacoes() {
-        switch (sinal) {
-            case '+':
-                return String.valueOf(primeiroValor + segundoValor);
-            case '-':
-                return String.valueOf(primeiroValor - segundoValor);
-            case '*':
-                return String.valueOf(primeiroValor * segundoValor);
-            case '/':
-                return String.valueOf(primeiroValor / segundoValor);
-            case '^':
-                return String.valueOf(Math.pow(primeiroValor, segundoValor));
-        }
-        return null;
+        return switch (sinal) {
+            case '+' -> String.valueOf(primeiroValor + segundoValor);
+            case '-' -> String.valueOf(primeiroValor - segundoValor);
+            case '*' -> String.valueOf(primeiroValor * segundoValor);
+            case '/' -> String.valueOf(primeiroValor / segundoValor);
+            case '^' -> String.valueOf(Math.pow(primeiroValor, segundoValor));
+            default -> null;
+        };
     }
 
     //caso a expressao seja dada como valida, substituira todos os '{', '}', '[' e ']' por '(' ou ')';
@@ -128,32 +124,36 @@ public class Calculadora {
                     pilha.push(s);
                 }
                 else {
+                    try {
+                        //enquanto a expressão não for fechada por parenteses
+                        while (!pilha.top().equals("("))
+                            pilhaContas.push(pilha.pop());
 
-                    //enquanto a expressão não for fechada por parenteses
-                    while(!pilha.top().equals("("))
-                        pilhaContas.push(pilha.pop());
+                        //elimina o parenteses que abre a conta
+                        pilha.pop();
 
-                    //elimina o parenteses que abre a conta
-                    pilha.pop();
+                        //excessao de valor faltando
+                        if (pilhaContas.size() <= 2) {
+                            pilha.clear();
+                            throw new MissingNumberException(pilhaContas.toString());
+                        }
 
-                    //excessao de valor faltando
-                    if(pilhaContas.size()<=2) {
-                        pilha.clear();
-                        throw new MissingNumberException(pilhaContas.toString());
+                        //enquanto a pilha de contas tiver ao menos 3 elementos, faz a conta
+                        while (pilhaContas.size() > 2) {
+                            setValorEsquerda(Double.parseDouble(pilhaContas.pop()));
+                            setSinal(pilhaContas.pop().charAt(0));
+                            setValorDireita(Double.parseDouble(pilhaContas.pop()));
+                            pilhaContas.push(operacoes());
+                        }
+
+                        //insere resultado na pilha original
+                        pilha.push(pilhaContas.pop());
+
                     }
-
-                    //enquanto a pilha de contas tiver ao menos 3 elementos, faz a conta
-                    while(pilhaContas.size() > 2) {
-                        setValorEsquerda(Double.parseDouble(pilhaContas.pop()));
-                        setSinal(pilhaContas.pop().charAt(0));
-                        setValorDireita(Double.parseDouble(pilhaContas.pop()));
-                        pilhaContas.push(operacoes());
+                    catch (RuntimeException e){
+                        System.out.println(e.getMessage());
+                        break;
                     }
-
-                    //insere resultado na pilha original
-                    pilha.push(pilhaContas.pop());
-
-
             }
 
         }
