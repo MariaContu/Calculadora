@@ -22,14 +22,8 @@ public class LinkedStack {
         n.next = head;
         head = n;
         count++;
-
-        atualizaTamanhoMaximoAtingido();
-    }
-
-    public int atualizaTamanhoMaximoAtingido() {
-        if(count > countMax)
-            countMax = count;
-        return countMax;
+        if(count > countMax) countMax = count;
+        
     }
 
     public int getCountMax() {
